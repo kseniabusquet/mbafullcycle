@@ -15,6 +15,22 @@
     - [View e Viewpoints](#view-e-viewpoints)
     - [4 + 1](#4--1)
     - [Risco vs Documentação](#risco-vs-documentação)
+  - [Design Patterns](#design-patterns)
+    - [N tier / N layered architecture (Arquitetura baseada em camadas)](#n-tier--n-layered-architecture-arquitetura-baseada-em-camadas)
+    - [Multi-tenant architecture](#multi-tenant-architecture)
+    - [Stateless vs Stateful](#stateless-vs-stateful)
+      - [Stateful](#stateful)
+      - [Stateless](#stateless)
+    - [Serverless](#serverless)
+    - [Microsserviços](#microsserviços)
+      - [Microsserviços vs Complexidades](#microsserviços-vs-complexidades)
+    - [CQRS (Command Query Responsibility Segregation)](#cqrs-command-query-responsibility-segregation)
+      - [Command Stack](#command-stack)
+      - [Query Stack](#query-stack)
+      - [CQS (Command Query Separation)](#cqs-command-query-separation)
+    - [Caching](#caching)
+      - [Estratégias de invalidacão do cache](#estratégias-de-invalidacão-do-cache)
+    - [Distributed Lock](#distributed-lock)
 
 ## Módulo 1
 
@@ -242,3 +258,236 @@ A estrutura organizacional da empresa vai influenciar diretamente na estrutura d
 O risco vai ser totalmente proporcional à quantidade de documentações e formalizações que vai ser preciso fazer em determinada solução.
 
 **Refleções importantes:** reflita e utilize muito o bom senso em relação aos pontos de vista que você vai levantar, os riscos que isso tem em relação à organização como um todo. Até que ponto isso vale uma documentação? Até que ponto isso vale uma documentação com detalhes e mais detalhes? Tudo isso depende do risco.
+
+### Design Patterns
+
+>Soluções comuns para diversos tipos de problema, ou seja, existem diversos problemas que já foram resolvidos por muitas pessoas. E, essas pessoas, normalmente resolveram de uma forma comum.
+
+#### N tier / N layered architecture (Arquitetura baseada em camadas)
+
+>Criação das camadas separadas para uma aplicação.
+
+![N-tier/N-layer architecture](img/ntier_nlayer.png)
+
+- Presentation
+  > Layer que vai focar em apresentação. Essa parte de exibição é desacoplada da parte das outras áreas da aplicação
+
+- Application
+  > Vai rodar as regras de negócio, as orquestrações dos processos etc.
+
+- Data
+
+Esses três layers funcionam de forma independentes. Além disso, cada um tem as suas permissões de acesso diferentes, as suas regras de segurança diferentes. Então, por exemplo, a parte de apresentação pode estar totalmente disponível para a internet, mas a parte de aplicação é banco de dados e fica para dentro de uma sub rede que não tem acesso direto a internet.
+
+> Coisa comum com esse tipo de arquitetura: **a comunicação ponto a ponto**
+
+> Quando a parte de web precisa de alguma coisa, ela bate na parte de **aplicação** e a aplicação, eventualmente, se ela precisar pegar algum dado, ela vai pegar esses dados **do banco de dados**. Logo, o banco de dados provavelmente vai retornar isso aí para minha aplicação e vai retornar isso para a parte de web. Quando o fluxo dessa aplicação funciona dessa forma, normalmente a gente chama de **Closed Ring**. O que isso significa? Significa que a parte de apresentação não vai bater direto lá no banco de dados, ela **sempre tem que passar pelos layers da minha aplicação**.
+
+> **Outro approach**: eventualmente pode fazer com que você dê um bypass em uma camada e acesse uma camada diretamente. Então, por exemplo, aqui quando estamos trabalhando de forma open, significa que a minha apresentação, eventualmente, poderia consultar o meu banco de dados diretamente.
+
+> Não existe certo e errado!
+
+> **Boas práticas: passar por todos os layers**
+
+#### Multi-tenant architecture
+
+![Multitenant architecture](img/multitenant_architecture.png)
+
+Não necessariamente precisa estar utilizando uma arquitetura baseada em camadas quando falamos da arquitetura multi-tenant.
+
+O sistema pode ter, entre aspas, diversos inquilinos, ou seja, diversos usuários que fazem parte de organizações diferentes.
+
+Os tenants acessam, geram transações e armazenam dados. Mas esses dados não podem ser vistos ou compartilhados entre os tenants. Cada tenant vê apenas os seus dados. Isso é muito comum quando estamos trabalhando com a plataforma SaaS de Software as a Service.
+
+**Approaches de armazenamento de dados:**
+
+- uma única aplicação, mas na hora de salvar os dados, dois bancos de dados esão sendo criados, um banco para o tenant 1 e um banco para o tenant 2
+- tabelas diferentes
+- única tabela com uma chave primária composta pelo ID do tenant **(a solução mais comum**)
+
+A decisão vai depender muito da quantidade de dados, do tamanho de cada empresa etc.
+
+#### Stateless vs Stateful
+
+**Vai determinar se você vai poder escalar ou não a sua aplicação!**
+
+##### Stateful
+
+![Stateless vs Statetful](img/stateless_stateful.png)
+
+As informações das seções do usuário, outros dados do usuário ficam armazenadas nessa mesma aplicação. E, se essa aplicação morrer e a gente criar uma outra, os dados do usuário são perdidos junto.
+
+##### Stateless
+
+![Auto Scaling Group](img/autoscaling_group.png)
+
+Ao invés de armazenar o estado dentro da própria aplicação, eu posso:
+- deixar os dados da sessão gravadas em um banco de dados
+- subir os assets no Amazon S3
+- salvar os logs gerados num banco de dados separado
+
+Então, quando a instância morrer, nada vai estar perdido.
+
+#### Serverless
+
+![Serverless](img/serverless.png)
+
+Serverless é um conceito geral de serviços que incluem diversas opções quando você está trabalhando com Cloud Providers.
+
+> Principal característica: pagar somente pelo que eu realmente uso, somente pela minha demanda
+
+Serverless não necessariamente é uma Lambda Function.
+
+> Quando estamos falando em Serverless, não estamos falando apenas em Lambda Functions. Serverless ignifica que eu não vou ter que me preocupar com dimensionamento de infraestrutura, deployment de infraestrutura e pagar por algo que eu não estou utilizando. Significa que o Cloud Provider vai provisionar e deixar tudo pronto para mim e ele vai me cobrar on demand conforme o uso. Logo, Serverless vai desde o S3 até uma Lambda Function, até um banco de dados.
+
+#### Microsserviços
+
+![Microsserviços 1](img/microsservicos_1.png)
+
+![Microsserviços 2](img/microsservicos_2.png)
+
+![Microsserviços 3](img/microsservicos_3.png)
+
+Microsserviços são sistemas que normalmente têm responsabilidades específicas e essas responsabilidades podem ser projetos totalmente diferentes dentro de uma organização.
+
+Alguns projetos podem ter relacionamento entre eles, então, pode acontecer que um microsserviço tenha que chamar outros microsserviços diretamente.
+
+**Vantagem**: separando isso tudo, fica mais fácil inclusive organizacionalmente criar diversas equipes
+
+**Desvantagem**: quando um microsserviço chama o outro e o outro estiver fora do ar, o microsserviço que chamou também vai ficar fora do ar e isso pode gerar um efeito dominó muito grande dentro da organização.
+
+> A coisa mais importante que temos que fazer quando nós trabalhamos com microsserviços é **lutar contra o acoplamento**.
+
+Como?
+
+1. Bancos de dados
+
+  > Se os microsserviços compartilham o mesmo banco de dados, significa que se um microsserviço encher um banco de dados de acessos e deixar este banco de dados lento, o outro microsserviço que vai utilizar esse banco de dados também vai ficar lento. Se alguém mudar uma coluna inadvertidamente de um microsserviço vai quebrar um outro microsserviço.
+
+**É muito comum nós ter um banco de dados por microsserviço**.
+
+2. Trabalho de forma asíncrona
+
+   > Ao invés de um microsserviço chamar o outro diretamente, eles vão se falar através de mensagens, através de eventos. Dessa forma, o Microsserviço 1 fala: “Olha, compra realizada, os dados do cartão estão aí”, e o Microsserviço 2 pega os eventos de compra realizada e fala: “Compra aprovada, já fiz o pagamento do cartão”. Daí ele manda falando da compra aprovada, Aí o microsserviço 4 fala: “vou gerar nota fiscal da compra aprovada”, e ele retorna “nota fiscal emitida”. Então o microsserviço 3 fala: “Opa! Com a nota fiscal emitida eu vou permitir que o caminhão saia para fazer entrega.
+
+   > Um microsserviço não falou diretamente com o outro.
+
+   > Se um microsserviço cair, os outros microsserviços vão continuar funcionando normalmente. E quando ele subir, ele vai processar as mensagens pendentes que ele tinha.
+
+**A principal motivação para utilizar os microsserviços nos dias de hoje é organizacional e equipe.**
+
+Outro ponto: **escalabilidade**
+
+> Se uma área de um único sistema tiver muitos acessos, o sistema inteiro vai ter que ser escalado. Com microsserviços, eu escalo somente o microsserviço que está tendo muito acesso. Se eu tenho um único sistema, por melhor que ele esteja arquitetado, vai ter tanta responsabilidade no mesmo sistema que uma coisa vai começar a afetar outra, invariavelmente. Então, quando você tem microsserviços, você consegue criar diversos microsserviços para diversas responsabilidades.
+
+**Também: Tecnologias diferentes para soluções diferentes**
+
+##### Microsserviços vs Complexidades
+
+- Maturidade de organização
+
+  > As gestões das equipes vão ser diferentes, a gestão dos projetos vão ser diferentes e a forma de você conseguir disponibilizar esses ambientes para os desenvolvedores vai ser diferente.
+
+- Maturidade dos times
+  > Os times têm que ser mais maduros, porque cada time tem que se especializar naquele domínio que aquele microsserviço vai resolver. Aquele time tem que conseguir entender outras formas de comunicação, porque eles não vão trabalhar mais só como o Rest, ficar chamando APIs, eles vão ter que trabalhar com mensageria, vão ter que trabalhar com eventos.
+
+  > Outra coisa que vai acontecer é que eles não vão ter todos os dados, porque o banco de dados é separado.
+
+- Relatórios de dados que não estão totalmente no meu microsserviço
+
+- Deployment
+  > n esteiras de CI/CD rodando, n pods diferentes
+
+- Observabilidade
+
+- Troubleshooting
+
+#### CQRS (Command Query Responsibility Segregation)
+
+![CQRS](img/cqrs.png)
+
+##### Command Stack
+
+> Uma camada, uma área da aplicação onde tem apenas mudanças de estado (criação de um usuário, alteração de um email etc.) e a área de domínio.
+
+A apresentação recebe essa informação, bate na aplicação, roda regras de domínio, acessa o banco de dados e acabou.
+
+Nesse ponto, quando eu crio alguma coisa, eu não vou retornar algo em troca. Assim, na hora que eu crio um comando, eu apenas executo o comando e acabou.
+
+Se der algo errado, retorna apenas uma simples Exception.
+
+Essa área do sistema serve **apenas para gravação**.
+
+##### Query Stack
+
+> Apenas a camada da aplicação.
+
+Essa área do sistema serve **apenas para leitura**.
+
+Uma opção interessante é separar os bancos de dados para escrita e para leitura que vão estar sincronizados.
+
+##### CQS (Command Query Separation)
+
+O conceito anterior de conseguir fazer alguns tipos de separação, por exemplo, tudo o que é ação, não retorna nada.
+
+#### Caching
+
+![Caching 1](img/caching_1.png)
+
+![Caching 2](img/caching_2.png)
+
+Normalmente o cache é um sistema à parte e normalmente é um banco de dados que guarda as coisas em memória para ter um acesso muito rápido. Mas, às vezes o próprio cache pode ser guardado em um banco de dados.
+
+A parte um pouquinho mais complexa em relação ao cache é a parte de **invalidação**, porque invariavelmente, aqueles dados que guardamos no cache vão mudar.
+
+##### Estratégias de invalidacão do cache
+
+O objetivo é manter o máximo possível na consistência dos dados.
+
+- Time-based invalidation
+- Least Recently Used (LRU)
+  > D *
+
+  > C
+
+  > B
+
+  > A - vai ser removido para o D poder entrar
+
+- Most Recently Used (MRU)
+  > C * - versão modificada do C
+
+  > C - vai ser removido para o C* poder entrar
+
+- Least Frequently Used (LFU)
+  > D - 10
+
+  > C - 5 - vai ser removido como o dado com o menor número de acessos
+
+  > B - 6
+
+  > A - 7
+
+- TTL-based invalidation (time-to-live)
+
+- Write-through invalidation
+  > Sempre quando há alteração no disco, o cache é atualizado em conjunto. Essa estratégia funciona bem com sistema que não possuem um alto índice de escrita.
+
+- Write-back invalidation
+  > Quando há alteração, o cache primeiramente é atualizado e depois o dado em disco é atualizado. Muitas vezes o dado em disco é atualizado quando o cache já está para expirar de alguma forma.
+
+#### Distributed Lock
+
+Muitas vezes o maior problema, o maior desafio está na concorrência ***(exemplo: vender um único produto para duas pessoas)***.
+
+> O lock distribuído vai ser uma forma de bloquear um registro, bloquear uma operação caso duas pessoas, dois sistemas, duas requisições tentem alterar ao mesmo tempo independente da quantidade de máquinas que estejam rodando.
+
+- Consistência de dados
+- Contenção de recursos
+- Evita dead locks
+- Garante mais eficiência dos recursos
+- Ferramentas: Apache Zookeeper, ETCD (bd do Kubernetes), Redis, Consul
+
+Exemplo do lock/unlock em TypeScript utilizando Zookeper:
+
+![Zookeper](img/zookeper.png)
