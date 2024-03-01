@@ -1,3 +1,3 @@
-**Anotações do MBA Full Cycle**
+## Anotações do MBA Full Cycle
 
-Atualizado em 02/2024
+Atualizado em 03/2024

@@ -31,6 +31,34 @@
     - [Caching](#caching)
       - [Estratégias de invalidacão do cache](#estratégias-de-invalidacão-do-cache)
     - [Distributed Lock](#distributed-lock)
+    - [Configuration](#configuration)
+    - [Secret Management](#secret-management)
+    - [Circuit Breaker](#circuit-breaker)
+    - [Sequencing](#sequencing)
+    - [API Gateway](#api-gateway)
+    - [Event Driven Architecture](#event-driven-architecture)
+    - [Publish-Subscribe](#publish-subscribe)
+    - [BFF (Backend for Frontend)](#bff-backend-for-frontend)
+    - [Sidecar Applications](#sidecar-applications)
+    - [Service Mesh](#service-mesh)
+      - [Istio](#istio)
+  - [AWS Well-Architected Framework](#aws-well-architected-framework)
+    - [Arquitetura de Solução para Cloud](#arquitetura-de-solução-para-cloud)
+    - [Conceitos](#conceitos)
+      - [Excelência Operacional](#excelência-operacional)
+        - [Princípios](#princípios)
+      - [Segurança](#segurança)
+        - [Princípios](#princípios-1)
+      - [Confiabilidade](#confiabilidade)
+        - [Princípios](#princípios-2)
+      - [Eficiência e performance](#eficiência-e-performance)
+        - [Princípios](#princípios-3)
+      - [Otimização de custos](#otimização-de-custos)
+        - [Princípios](#princípios-4)
+      - [Sustentabilidade](#sustentabilidade)
+        - [Princípios](#princípios-5)
+    - [Princípios gerais](#princípios-gerais)
+    - [10 princípios para aplicações Azure](#10-princípios-para-aplicações-azure)
 
 ## Módulo 1
 
@@ -491,3 +519,245 @@ Muitas vezes o maior problema, o maior desafio está na concorrência ***(exempl
 Exemplo do lock/unlock em TypeScript utilizando Zookeper:
 
 ![Zookeper](img/zookeper.png)
+
+#### Configuration
+
+> Vai ajudar a mudar em tempo de execução, as configurações do software
+
+![Configuration](img/configuration.png)
+
+- Configurações de uma aplicação mudam a qualquer momento
+- Como mudar uma senha de banco de dados, credenciais de email, etc.. Sem ter que reiniciar totalmente a aplicação ou refazer o deploy?
+
+**Opção 1:** refazer o deploy gastando o tempo desnecessário e eventualmente deixando a aplicação fora do ar
+
+**Opção 2:** guardar as configurações nas variáveis de ambiente ou num arquivo .env, tendo que rebootar a aplicação para aplicar as alterações nas variáveis, deixando a aplicação fora do ar
+
+**Opção 3: Configuration.** Criaçõ de um endpoint, por exemplo /configuration que vai receber as configurações, e depois de receber uma requisição, dar um boot somente naquelas configurações. Além do HTTP pode estar sendo usada uma fila, e toda vez que chegar uma mensagem nessa fila, as variáveis serão recarregadas.
+
+#### Secret Management
+
+- Credenciais não podem ficar “voando" na empresa
+- Processos para rotacional credenciais são importantes
+- Serviços gerenciados e soluções ajudam nessa tarefa
+  - Hashicorp Vault
+  - AWS Secret Manager
+    - Armazenamento de secrets
+    - Rotacionamento automáticos de secrets nos serviços como RDS
+    - SDK para recuperação dos secrets em tempo de execução
+
+#### Circuit Breaker
+
+> Funciona como disjuntor de energia.
+
+![Circuit Breaker](img/circuit_breaker.png)
+
+Com uma grande carga o Microsserviço 2 vai ficar lento, deixando o Microsserviço 1 lento também, gerando **efeito dominô**.
+
+Com Circuit Breaker, ele vai quebrar o canal de comunicação entre MS 1 e MS2 quando o MS2 começar a ficar lento. Assim, na próxima requisiçao do MS1 para MS2 ele já vai receber um erro 500, ou qualquer outro tipo de erro. Então, **o MS1 vê que o MS2 está indisponível e segue a vida dele.**
+
+**Estados de microsserviços**:
+
+- Fechado
+
+  > Mantém a comunicação entre os dois microsserviços e está tudo funcionando.
+
+- Aberto
+
+  > Quando o MS1 vai mandar uma mensagem para o MS2, ele não consegue estabelecer a comunicação ou o MS2 fala: “Não vou receber mais nenhuma requisição”, e daí o MS1 toca a vida.
+
+- Meio aberto
+
+  > Se o MS2 ficou fora do ar e abriu o circuito, como que o MS1 sabe que ele já está pronto novamente para receber a requisição? O MS1 manda uma requisição, vê se responde, não respondeu, beleza, passa um tempinho, manda mais uma requisição e o MS2 falou: “tô ok”. Logo, o MS1 manda mais um “tá ok” e mandam mais um “tá ok”. E daí ele fala: “opa, o cara tá no ar”. Assim, ele continua mandando todas as requisições de uma vez.
+
+**Formas de trabalhar com o Circuit Breaker**:
+
+- No microsserviço que está recebendo a requisição
+
+  > Pode colocar um proxy na frente, pode colocar algumas regras, que na hora que você está mandando a requisição, o MS2 para de atender essas requisições.
+
+- No MS1
+
+  > Você manda um grande número de requisição e o microsserviço não está respondendo, então você para de mandar aquela requisição, espera e manda de novo para ver.
+
+#### Sequencing
+
+Resolve o problema de eventualmente gerar IDs repetidos, que pode ser um grande problema para as grandes empresas como, por exemplo, Mercado Livre com 26.000 microsserviços, e toda hora esse microsserviços estão gerando IDs.
+
+> Esse serviço tem o seu banco de dados, ele consegue trabalhar de forma atômica, ele evita qualquer tipo de concorrência que vai gerar IDs repetidos e ele tem que ser extremamente performático. Ele vai guardar os IDs gerados,os nome dos MS e o momento em qual o ID foi gerado.
+
+![Sequencing](img/sequencing.png)
+
+#### API Gateway
+
+![API Gateway](img/api_gateway.png)
+
+- Centralizador de requisições
+- Roteamento
+- Autenticação
+- Conversão de dados
+- Cabeçalhos
+- Throttling
+- Rate Limit
+
+AWS, Mulesoft, Sensedia, Kong (Open Source)
+
+#### Event Driven Architecture
+
+- Evento acontecem no passado
+  - Event Notification
+  > Serve para notificar que alguma coisa aconteceu, depois disso, esse evento não serve para mais nada.
+  - Event Carried State Transfer
+  > Traz os dados completos do evento
+  - Event Sourcing
+  > Grava tudo que acontece, todas as mudanças de estado dos eventos que acontecem no seu sistema em um banco de dados.
+- Um evento emitido pode ser o gatilho de entrada para um outro sistema
+- Coreografia vs Orquestração
+
+#### Publish-Subscribe
+
+![Publish-Subscribe](img/publish_subscribe.png)
+
+#### BFF (Backend for Frontend)
+
+![BFF](img/bff.png)
+
+#### Sidecar Applications
+
+- Aplicações auxiliares na aplicação principal
+- Coleta de logs
+- mTLS
+- Controle de tráfego
+
+![Sidecar Applications](img/sidecars.png)
+
+#### Service Mesh
+
+> "Uma malha de serviço é uma camada de infraestrutura dedicada que você pode adicionar as
+suas aplicações. Ele permite adicionar recursos de forma transparente, como observabilidade,
+gerenciamento de tráfego e segurança, sem adicioná-los ao seu próprio código".
+
+##### Istio
+
+- Gerenciamento de tráfego
+- Segurança
+- Policy enforcement
+- Observabilidade
+- Extensibilidade
+
+![Service Mesh - Istio](img/istio.png)
+
+### AWS Well-Architected Framework
+
+#### Arquitetura de Solução para Cloud
+
+- AWS Well-Architected
+- Framework de boas práticas
+  - Excelência Operacional
+  - Segurança
+  - Confiabilidade
+  - Eficiência e performance
+  - Otimização de custos
+  - Sustentabilidade
+
+#### Conceitos
+
+##### Excelência Operacional
+
+> A capacidade de oferecer suporte ao desenvolvimento e executar cargas de trabalho com eficiência, obter informações sobre suas operações e melhorar continuamente os processos e procedimentos de suporte para agregar valor aos negócios.
+
+###### Princípios
+
+- Execute operações como código (IaC)
+- Faça mudanças frequentes, pequenas e reversíveis
+- Refine os procedimentos de operações com frequência
+- Antecipe falhas
+- Aprenda com todas as falhas operacionais
+
+##### Segurança
+
+> O pilar de segurança descreve como aproveitar as vantagens das tecnologias de nuvem para proteger dados, sistemas e ativos de uma forma que possa melhorar sua postura de segurança.
+
+###### Princípios
+
+- Implemente uma base de "identity" forte
+- Rastreabilidade
+- Ative todos os layers de segurança
+- Proteja os dados em trânsito e os armazenados
+- Mantenha pessoas longe dos dados
+- Prepare-se para eventos de segurança
+
+##### Confiabilidade
+
+> O pilar de confiabilidade abrange a capacidade de uma carga de trabalho de executar sua função pretendida de forma correta e consistente quando é esperado. Isso inclui a capacidade de operar e testar a carga de trabalho durante todo o seu ciclo de vida.
+
+###### Princípios
+
+- Recupere-se automaticamente de falhas
+- Teste procedimentos de recuperação
+- Escale horizontalmente para aumentar a disponibilidade de carga de trabalho agregada
+- Pare de adivinhar a capacidade
+- Gerencie a mudança de forma automatizada
+
+##### Eficiência e performance
+
+> A capacidade de usar recursos de computação com eficiência para atender aos requisitos do
+sistema e manter essa eficiência à medida que a demanda muda e as tecnologias evoluem.
+
+###### Princípios
+
+- Democratizar tecnologias avançadas
+- Torne-se global em minutos
+- Use arquiteturas serverless
+- Experimente com mais frequência
+- "Consider mechanical sympathy"
+
+##### Otimização de custos
+
+> A capacidade de executar sistemas para fornecer valor de negócios ao preço mais baixo.
+
+###### Princípios
+
+- Implemente o Cloud Finance Management
+- Adote um modelo de consumo
+- Meça a eficiência geral
+- Pare de gastar dinheiro em trabalhos que não geram diferenciais competitivos
+- Analise e atribua despesas
+
+##### Sustentabilidade
+
+> A capacidade de melhorar continuamente os impactos da sustentabilidade, reduzindo o
+consumo de energia e aumentando a eficiência em todos os componentes de uma carga de
+trabalho, maximizando os benefícios dos recursos provisionados e minimizando o total de
+recursos necessários.
+
+###### Princípios
+
+- Entenda seu impacto
+- Estabeleça metas de sustentabilidade
+- Maximizar a utilização
+- Antecipe e adote novas ofertas de hardware e software mais eficientes
+- Use serviços gerenciados
+- Reduza o impacto downstream de suas cargas de trabalho na nuvem
+
+#### Princípios gerais
+
+- Pare de adivinhar suas necessidades de capacidade
+- Sistemas de teste em escala de produção
+- Automatize a experimentação arquitetônica
+- Permitir arquiteturas evolutivas
+- Guie sua arquitetura usando dados
+- "Melhorar durante os dias de jogo”
+
+#### 10 princípios para aplicações Azure
+
+- Design for self healing
+- Deixa as coisas redundantes
+- Minimize a coordenação
+- Desenhe para escalar
+- Particionamento
+- Design for operations
+- Use serviços gerenciados
+- Use a melhor data storage para o melhor trabalho
+- Design for evolution
+- Construa para as necessidades do negócio
