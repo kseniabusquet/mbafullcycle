@@ -59,6 +59,18 @@
         - [Princípios](#princípios-5)
     - [Princípios gerais](#princípios-gerais)
     - [10 princípios para aplicações Azure](#10-princípios-para-aplicações-azure)
+  - [Observabilidade](#observabilidade)
+    - [Observabilidade vs Monitoramento](#observabilidade-vs-monitoramento)
+    - [Pilares vs Pipes](#pilares-vs-pipes)
+    - [Ferramentas populares](#ferramentas-populares)
+    - [OTEL (Open Telemetry)](#otel-open-telemetry)
+  - [On-Premise vs Cloud vs Modelo Híbrido](#on-premise-vs-cloud-vs-modelo-híbrido)
+    - [Modelo On-Premise](#modelo-on-premise)
+    - [Modelo Cloud Computing](#modelo-cloud-computing)
+    - [Modelo Cloud Híbrido](#modelo-cloud-híbrido)
+  - [Soluções Cloud Native](#soluções-cloud-native)
+  - [CNCF (Cloud Native Computing Foundation)](#cncf-cloud-native-computing-foundation)
+
 
 ## Módulo 1
 
@@ -701,8 +713,7 @@ gerenciamento de tráfego e segurança, sem adicioná-los ao seu próprio códig
 
 ##### Eficiência e performance
 
-> A capacidade de usar recursos de computação com eficiência para atender aos requisitos do
-sistema e manter essa eficiência à medida que a demanda muda e as tecnologias evoluem.
+> A capacidade de usar recursos de computação com eficiência para atender aos requisitos do sistema e manter essa eficiência à medida que a demanda muda e as tecnologias evoluem.
 
 ###### Princípios
 
@@ -714,7 +725,9 @@ sistema e manter essa eficiência à medida que a demanda muda e as tecnologias 
 
 ##### Otimização de custos
 
-> A capacidade de executar sistemas para fornecer valor de negócios ao preço mais baixo.
+> A capacidade de executar sistemas para fornecer valor de negócios ao preço mais baixo = conseguir fazer mais gastando menos.
+
+O custo sempre vai estar ligado com o benefício que a tal tecnologia retorna.
 
 ###### Princípios
 
@@ -726,10 +739,7 @@ sistema e manter essa eficiência à medida que a demanda muda e as tecnologias 
 
 ##### Sustentabilidade
 
-> A capacidade de melhorar continuamente os impactos da sustentabilidade, reduzindo o
-consumo de energia e aumentando a eficiência em todos os componentes de uma carga de
-trabalho, maximizando os benefícios dos recursos provisionados e minimizando o total de
-recursos necessários.
+> A capacidade de melhorar continuamente os impactos da sustentabilidade, reduzindo o consumo de energia e aumentando a eficiência em todos os componentes de uma carga de trabalho, maximizando os benefícios dos recursos provisionados e  minimizando o total de recursos necessários.
 
 ###### Princípios
 
@@ -737,7 +747,7 @@ recursos necessários.
 - Estabeleça metas de sustentabilidade
 - Maximizar a utilização
 - Antecipe e adote novas ofertas de hardware e software mais eficientes
-- Use serviços gerenciados
+- Use serviços gerenciados (que já cuidem da sustentabilidade)
 - Reduza o impacto downstream de suas cargas de trabalho na nuvem
 
 #### Princípios gerais
@@ -747,7 +757,7 @@ recursos necessários.
 - Automatize a experimentação arquitetônica
 - Permitir arquiteturas evolutivas
 - Guie sua arquitetura usando dados
-- "Melhorar durante os dias de jogo”
+- "Melhorar durante os dias de jogo” - Atualização continua
 
 #### 10 princípios para aplicações Azure
 
@@ -761,3 +771,149 @@ recursos necessários.
 - Use a melhor data storage para o melhor trabalho
 - Design for evolution
 - Construa para as necessidades do negócio
+
+### Observabilidade
+
+> Uma medida de quão bem os estados internos de um sistema podem ser inferidos a partir do conhecimento das saídas externas desse sistema. Simplificando, observabilidade é o quão bem você pode entender seu sistema complexo (baseado nos dados de saída).
+
+![Observabilidade](img/observabilidade.png)
+
+> Na teoria de controle, a observabilidade é definida como uma medida de quão bem os estados internos de um sistema podem ser inferidos a partir do conhecimento das saídas externas desse sistema. Simplificando, observabilidade é quão bem você pode entender seu sistema complexo.
+
+https://newrelic.com/blog/best-practices/what-is-observability
+
+#### Observabilidade vs Monitoramento
+
+- Monitoramento nos mostra que há algo errado
+- Monitoramento se baseia em saber com antecedência quais sinais você deseja monitora ***(ex.: notificação toda vez que o uso de CPU fica mais de 80%)***
+- Observabilidade nos permite perguntar **o porquê**
+
+#### Pilares vs Pipes
+
+![Pilares - Observabilidade](img/pilares_observabilidade.png)
+
+https://talks.riferrei.com/VRBRea/slides
+
+- Metrics
+  > Qualquer medida que você acaba tendo, dados que você consegue agregar (ex.: 30 compras por minuto, media de 60% de memória RAM etc.)
+- Tracing
+  > = rastreabilidade, permite que você veja o caminho de uma requisição dentro do sistema. Mas não somente o caminho, o escopo e o contexto, porque eventualmente eu posso ter diversas requests e cada request tem um pedido diferente.
+- Logging
+  > Informações completas sobre os eventos
+
+  **Essas três áreas têm momentos em comum = PIPES**
+
+Você não observa as coisas apenas de forma separada. Eu observo as coisas com os dados em conjunto.
+
+#### Ferramentas populares
+
+- Elastic Stack
+- Datadog
+- New Relic
+- Splunk
+- Dynatrace
+- Prometheus/Grafana*
+- Jaeger*
+- Zipkin*
+- Kiali*
+
+#### OTEL (Open Telemetry)
+
+- CNCF Project
+- Baseado no Open Tracing e Open Census
+- Baseado em:
+  - Especificações
+  - Protocolos
+  - SDKs
+  - Ferrmanetas de integração
+
+![Open Telemetry](img/open_telemetry.png)
+
+https://www.dynatrace.com/news/blog/what-is-opentelemetry-2/
+
+### On-Premise vs Cloud vs Modelo Híbrido
+
+#### Modelo On-Premise
+
+-  Softwares são instalado localmente na empresa ou em um datacenter
+-  Custo inicial é alto
+-  Hardware possui depreciação
+-  Hardware exige manutenção
+-  Precisa de profissionais qualificados com conhecimentos em hardware, rede, software, virtualização, etc.
+-  Escalabilidade complexa
+-  Alta disponibilidade complexa (rodar em mais datacenters, fisicamente distantes, ao mesmo tempo)
+-  Alto controle sobre software, hardware, protocolos de segurança etc.
+-  Altamente customizável
+-  Acesso físico por profissionais da empresa
+-  Hardware normalmente é mais barato e poderoso do que máquinas - adrão que rodam na cloud
+-  Controle dos dados
+-  Integração com sistemas legados
+-  Compliance e regulações (Armazenamento, PCI DSS, HIPPA - Health Care))
+-  Custos previsíveis
+-  Sem lock-in
+-  Se bem dimensionado, o custo inicial se paga ao longo dos anos
+-  A longo prazo, se bem dimensionado, o custo pode ser menor do que soluções em Cloud
+
+#### Modelo Cloud Computing
+
+- Baixo custo inicial
+- Escalabilidade de forma simplificada
+- Acessibilidade
+- Alta disponibilidade (Regions e AZs)
+- Custo com profissionais especializados em datacenter, rede,hardware, etc
+- “Pay-as-you-go”: Pague conforme o uso
+- Hardware exige manutenção
+- Backups automatizados
+- Serviços gerenciados
+- Recuperação rápida em casos de desastres
+- Amplitude de serviços
+
+#### Modelo Cloud Híbrido
+
+- Pode ser considerado um modelo de transição
+- Modelo alternativo para ter mais controle de dados e serviços específicos, porém, com as vantagens da nuvem
+- Redução de custos para grande utilização sazonal
+- Integração de serviços pode ser complexa
+- Latência pode ser um grande desafio
+- Profissionais especializados em diversas áreas
+
+### Soluções Cloud Native
+
+- Soluções desenhadas para rodar em ambientes de Cloud Computing
+- São desenhados para tirar vantagens desses ambientes
+- Modulares
+- Prontas para rodar de forma distribuída
+
+Exemplo:
+- Docker
+- Kubernetes, Helm, Istio, Linkerd, Envoy
+- Apache Kafka
+- Prometheus
+- OpenTelemetry
+- AWS Lambda
+- ArgoCD
+- Produtos HashiCorp (Vault, Consul, Terraform)
+
+### CNCF (Cloud Native Computing Foundation)
+
+> "We bring together the world’s top developers, end users, and vendors and run the largest open
+source developer conferences. CNCF is part of the nonprofit Linux Foundation."
+
+https://www.cncf.io/about/who-we-are/
+
+- Organização sem fins lucrativos
+- 153 Projetos e contando
+- Criada em 2015
+- Parte da Linux Foundation
+- Responsável por famosos projetos:
+  - Kubernetes, Prometheus, OTEL, Envoy, Jaeger
+- Programas de certificação
+  - CKAD (Certified Kubernetes Application Developer)
+  - CKD (Certified Kubernetes Administration)
+  - CKS (Certified Kubernetes Security Specialist)
+  - KCNA (Kubernetes an Cloud Native Associate)
+  - PCA (Prometheus Certified Associate)
+
+![CNCF 1](img/cncf_1.png)
+
+![CNCF 2](img/cncf_2.png)
