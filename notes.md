@@ -70,6 +70,8 @@
     - [Modelo Cloud Híbrido](#modelo-cloud-híbrido)
   - [Soluções Cloud Native](#soluções-cloud-native)
   - [CNCF (Cloud Native Computing Foundation)](#cncf-cloud-native-computing-foundation)
+  - [SAD (Solution Architecture Document)](#sad-solution-architecture-document)
+    - [Tópicos tratados](#tópicos-tratados)
 
 
 ## Módulo 1
@@ -808,14 +810,19 @@ Você não observa as coisas apenas de forma separada. Eu observo as coisas com 
 #### Ferramentas populares
 
 - Elastic Stack
+  > Open Source. É coberto por Kibana, que é um dashboard com plugins. No Elastic Stack, no Elastic Search vamos utilizar a parte de observabilidade - Elastic APM (Application Performance Monitoring).
 - Datadog
 - New Relic
 - Splunk
 - Dynatrace
 - Prometheus/Grafana*
+  > Uma ferramenta para métricas, dados agregados, contadores e “histogramas”. O banco de dados que o Prometheus trabalha, é chamado de **data series**, database. Ele vai recebendo os dados, vai guardando os logs num formato de log baseado no tempo. Então, ele tem os intervalos. O Prometheus, a cada tantos segundos, você configura e ele acessa um endpoint da sua aplicação para pegar as informações e gerar essas métricas. O Prometheus trabalha com sistema de alarmes intelligentes. Junto com o Prometheus, normalmente você utiliza uma ferramenta chamada Grafana. Essa ferramenta ajuda a pegar os dados do Prometheus e gerar dashboards, e esses dashboards também podem conter alarmes.
 - Jaeger*
+  > O grande foco do Jaeger está na parte de tracing distribuído.
 - Zipkin*
+  > O sistema gera métricas e consegue enviar esses dados para o Zipkin em um determinado padrão. Então, o Zipkin tem um padrão de tracing. **As soluções na nuvem normalmente aceitam o padrão do Zipkin**.
 - Kiali*
+  > Ferramenta de tracing. A ideia do Kiali é conseguir fazer rastreabilidade e verificar a comunicação entre sistemas. O Kiali nasceu inicialmente para ser um sistema de rastreabilidade de um service mesh que se chama Istio. Então, o Kiali é instalado em cima do Istio e o Istio instalado em cima do Kubernetes, assim, você consegue ver os seus serviços se comunicando.
 
 #### OTEL (Open Telemetry)
 
@@ -825,7 +832,7 @@ Você não observa as coisas apenas de forma separada. Eu observo as coisas com 
   - Especificações
   - Protocolos
   - SDKs
-  - Ferrmanetas de integração
+  - Ferramentas de integração
 
 ![Open Telemetry](img/open_telemetry.png)
 
@@ -917,3 +924,69 @@ https://www.cncf.io/about/who-we-are/
 ![CNCF 1](img/cncf_1.png)
 
 ![CNCF 2](img/cncf_2.png)
+
+### SAD (Solution Architecture Document)
+
+> Documento que descreve a arquitetura de uma solução
+
+**Exemplos:**
+
+[Exemplo 1](docx/SystemDesignDocument-Example1.docx)
+
+[Exemplo 2](docx/SystemDesignDocument-Example2.docx)
+
+**Trata-se normalmente de:**
+- Componentes
+- Módulos
+- Interfaces
+- Fluxo de Dados
+- Leva em consideração o contexto do projeto
+- É gerado na fase de planejamento do projeto
+- Da clareza aos envolvidos sobre a solução como um todo
+- Server de referência para os mais diversos tipos de stackholders
+- Nem todo SAD possui a mesma estrutura
+- Documentamos o que realmente importa!
+- Quanto maior o risco do projeto > documentação
+
+#### Tópicos tratados
+
+- Introdução
+  - Propósito do documento
+  - Escopo da solução
+  - Restrições
+    > Linguagem de programação, prazos, financeiro, regulamentos governamentais etc.
+  - Pressupostos (assumptions)
+- Visão geral da arquitetura
+  - Descritivo com principais pontos
+  - Diagrama de alto nível
+    > É recomendável seguir um padrão! Ex.: Modelo C4
+  - Principais componentes
+  - Diagramas de fluxo
+- Requisitos
+  - Funcionais
+    - Recursos, funcionalidades, features que agregam valor ao negócio
+  - Não funcionais
+    - Ex: Performance, escalabilidade, segurança, disponibilidade + cross-cutting
+- Design da arquitetura
+  - Diagramas detalhados bem como sua descrição
+  - Tecnologias a serem utilizadas
+  - Integração entre sistemas
+- Implementação
+  - Metodologias de desenvolvimento e ferramentas
+  - Processos de deployment e infraestrutura
+  - Processos de teste e qualidade
+- Operação e manutenção
+  - Monitoramento
+  - Processos de manutenção
+  - Disaster recovery
+  - Processo de gerenciamento de mudanças
+- Riscos e estratégias de mitigação
+  - Riscos potenciais
+  - Riscos de grande impacto
+  - Planos de contingência
+- Custos, tecnologia e pessoal
+  - Estimativa de custos para implementação
+  - Recomendação de equipes e pessoal
+- Próximos passos
+  - Sugestão de ordem de execução
+  - Observações gerais
