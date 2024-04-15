@@ -72,6 +72,12 @@
   - [CNCF (Cloud Native Computing Foundation)](#cncf-cloud-native-computing-foundation)
   - [SAD (Solution Architecture Document)](#sad-solution-architecture-document)
     - [Tópicos tratados](#tópicos-tratados)
+  - [System Design e Deisgn Docs](#system-design-e-deisgn-docs)
+    - [System Design](#system-design)
+      - [6 Elementos](#6-elementos)
+      - [Requisitos](#requisitos)
+      - [Teorema CAP (Consistency, Availability, Partition Tolerance)](#teorema-cap-consistency-availability-partition-tolerance)
+      - [Anexos](#anexos)
 
 
 ## Módulo 1
@@ -990,3 +996,55 @@ https://www.cncf.io/about/who-we-are/
 - Próximos passos
   - Sugestão de ordem de execução
   - Observações gerais
+
+### System Design e Deisgn Docs
+
+#### System Design
+
+> Ë um processo de definição de arquitetura, componentes, módulos, interfaces e dados para atender os requisitos especificados.
+
+##### 6 Elementos
+
+1. Requisitos
+2. Estimativa de capacidade
+3. Modelagem de dados
+4. API Design
+5. System Design
+
+##### Requisitos
+
+- Core Features e Domínio
+  - Entendimento do domínio da aplicação e suas principais funcionalidades
+
+- Support Features
+  - Funcionalidades auxiliares que farão com que as funcionalidades principais sejam atendidas
+
+![Excalidraw](img/image.png)
+
+![Excalidraw](img/image-1.png)
+
+![Excalidraw](img/image-2.png)
+
+![Excalidraw](img/image-3.png)
+
+![Excalidraw](img/image-4.png)
+
+![Excalidraw](img/image-5.png)
+
+![Excalidraw](img/image-6.png)
+
+![Excalidraw](img/image-7.png)
+
+##### Teorema CAP (Consistency, Availability, Partition Tolerance)
+
+![Teorema CAP](img/cap.png)
+
+##### Anexos
+
+[Aula com Fernando (Google)](pdf/System%20Design%20-%20Fernando%20-%20PT1.pdf)
+
+[System Design Interview](pdf/The%20SD%20Interview%20Blueprint.pdf)
+
+[Excalidraw](https://link.excalidraw.com/readonly/05gRMYJUyZ4FfzRyZ1cF)
+
+[Excalidraw Library](others/library.excalidrawlib)
