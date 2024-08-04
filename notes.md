@@ -1,4 +1,4 @@
-- [Módulo 1](#módulo-1)
+- [Módulo 1 - Fundamentos de Arquitetura de Solução](#módulo-1---fundamentos-de-arquitetura-de-solução)
   - [Software Enterprise](#software-enterprise)
     - [Ecossistema Enterprise](#ecossistema-enterprise)
     - [Principais características de um Sistema Enterprise](#principais-características-de-um-sistema-enterprise)
@@ -72,15 +72,40 @@
   - [CNCF (Cloud Native Computing Foundation)](#cncf-cloud-native-computing-foundation)
   - [SAD (Solution Architecture Document)](#sad-solution-architecture-document)
     - [Tópicos tratados](#tópicos-tratados)
-  - [System Design e Deisgn Docs](#system-design-e-deisgn-docs)
+- [Módulo 2 - System Design e Design Docs](#módulo-2---system-design-e-design-docs)
     - [System Design](#system-design)
       - [6 Elementos](#6-elementos)
       - [Requisitos](#requisitos)
       - [Teorema CAP (Consistency, Availability, Partition Tolerance)](#teorema-cap-consistency-availability-partition-tolerance)
       - [Anexos](#anexos)
+    - [Design Docs](#design-docs)
+- [Módulo 3 - Fundamentos de Arquitetura de Software (TODO)](#módulo-3---fundamentos-de-arquitetura-de-software-todo)
+- [Módulo 4 - SOLID e Design Patterns](#módulo-4---solid-e-design-patterns)
+  - [SOLID](#solid)
+    - [Bad Design Signs](#bad-design-signs)
+    - [Remedies](#remedies)
+    - [Single Reponsibility Principle (SRP)](#single-reponsibility-principle-srp)
+    - [The Open Closed Principle (OCP)](#the-open-closed-principle-ocp)
+    - [The Liskov Substitution Principle (LSP)](#the-liskov-substitution-principle-lsp)
+    - [The Interface Segregation Principle (ISP)](#the-interface-segregation-principle-isp)
+    - [The Dependency Inversion Principle](#the-dependency-inversion-principle)
+  - [Design Patterns](#design-patterns-1)
+    - [Data Transfer Object (DTO)](#data-transfer-object-dto)
+      - [Compatibilidade](#compatibilidade)
+      - [Como o DTO pode nos ajudar?](#como-o-dto-pode-nos-ajudar)
+      - [Validações](#validações)
+    - [Repository](#repository)
+    - [Adapter](#adapter)
+    - [Strategy](#strategy)
+    - [Presenter](#presenter)
+    - [Decorator](#decorator)
+    - [Controller](#controller)
+    - [Composite Root](#composite-root)
+    - [Mediator](#mediator)
+  - [Patterns of Enterprise Application Architecture](#patterns-of-enterprise-application-architecture)
 
 
-## Módulo 1
+## Módulo 1 - Fundamentos de Arquitetura de Solução
 
 ### Software Enterprise
 
@@ -997,11 +1022,11 @@ https://www.cncf.io/about/who-we-are/
   - Sugestão de ordem de execução
   - Observações gerais
 
-### System Design e Deisgn Docs
+## Módulo 2 - System Design e Design Docs
 
 #### System Design
 
-> Ë um processo de definição de arquitetura, componentes, módulos, interfaces e dados para atender os requisitos especificados.
+> É um processo de definição de arquitetura, componentes, módulos, interfaces e dados para atender os requisitos especificados.
 
 ##### 6 Elementos
 
@@ -1048,3 +1073,139 @@ https://www.cncf.io/about/who-we-are/
 [Excalidraw](https://link.excalidraw.com/readonly/05gRMYJUyZ4FfzRyZ1cF)
 
 [Excalidraw Library](others/library.excalidrawlib)
+
+#### Design Docs
+
+[Slides do Cássio Botaro - PicPay](pdf/Design%20Docs.pdf)
+
+## Módulo 3 - Fundamentos de Arquitetura de Software (TODO)
+
+## Módulo 4 - SOLID e Design Patterns
+
+### SOLID
+
+[SOLID](img/solid.png)
+
+> What happens to a design over time? Software rot.
+
+#### Bad Design Signs
+
+- Messy Code
+- Neglect is Contagious
+- Rigidity
+  > The system is hard to change because every change forces many other changes to other parts of the system
+- Fragility
+  > Hidden dependencies make systems easy to break
+  > The consequences of change are not localized
+- Immobility
+  > It is hard to disentangle the system into components that can be reused in other systems
+
+#### Remedies
+
+- Manage dependencies
+- Keep minimal amount of copling
+- Separate concerns, firewalls that prevent the propagation of change, that block interdependencies and prevent the system from becoming intertangled
+- Dependency inversion
+
+#### Single Reponsibility Principle (SRP)
+
+> A class should have one and only one reason to change, meaning that a class should have only one job
+
+- A class should have one and only one reason to change
+- One actor that is the source of that change
+- Gather together things that change for the same reasons ***and*** at the same times
+- Separate things that change for different reasons ***or*** at different times
+
+#### The Open Closed Principle (OCP)
+
+> Objects or entities should be open for extension but closed for modification
+
+- A software artifact should be ***open*** for extension but ***closed*** for modification
+- To protect yourself from changes to come you have to know what changes are to come
+
+#### The Liskov Substitution Principle (LSP)
+
+> Let q(x) be a property provable about objects of x of type T. Then q(y) should be provable for objects y of type S where S is a subtype of T
+
+- The Square/Rectangle Problem
+
+![Square/Rectangle Problem](img/rectangle-square-problem.png)
+
+#### The Interface Segregation Principle (ISP)
+
+> A client should never be forced to implement an interface that it doesn’t use, or clients shouldn’t be forced to depend on methods they do not use
+
+- Don't depend on things you don't need
+
+#### The Dependency Inversion Principle
+
+> Entities must depend on abstractions, not on concretions. It states that the high-level module must not depend on the low-level module, but they should depend on abstractions
+
+- High level policy should not depend on details
+- Detail should depend upon high level policy
+
+### Design Patterns
+
+![Code Design Architecture](img/code-design-architecture.png)
+
+Design patterns nada mais são do que ***soluções comuns que você muits vezes chegaria naturalmente***.
+
+O padrão de projeto nada mais é do que ***algo que alguém observou ao longo do tempo que se repetia muito, por isso formando um padrão***.
+
+#### Data Transfer Object (DTO)
+
+> Objeto que só tem propriedades, sendo utilizado para transporte etre camadas da aplicação
+
+Quando desenvolvemos uma aplicação existem diversas responsabilidades e camadas que separam detalhes, como: o coração da aplicação, o seu comportamento, as comunicações e como os dados externos são recebidos.
+
+##### Compatibilidade
+
+A questão é que dados externos podem vir de diversas maneiras e formatos, como API REST, CLI, gRPC ou sistemas de mensageria.
+
+E como os dados não necessariamente chegam num formato compatível, as informações passam pelas camadas mais internas do sistema até chegarem ao nível de entidade, que são os fundamentos básicos de toda a aplicação.
+
+Ocasionalmente recebemos informações que não são compatíveis com a nossa estrutura e mesmo nós, que criamos as entidades, organizamos e estruturamos os fundamentos, não precisamos saber ou ter que nos adaptar ao formato que os dados chegam.
+
+##### Como o DTO pode nos ajudar?
+
+Pensando nesses detalhes nós podemos criar um objeto, que é basicamente uma classe, dependendo do contexto no qual você está inserido. Mas a ideia é que você tenha um objeto totalmente anêmico, que vai apenas receber os dados naquele estado específico. Ele vai, por exemplo, fazer a serialização de JSON ou XML, preenchendo a sua propriedade exatamente num formato que a sua entidade, caso de uso ou seu serviço precisa receber, sem fazer qualquer contato entre as camadas inferiores do seu sistema.
+
+Com o serviço preparado para receber o seu dado num determinado formato, o DTO pega as informações, processa, chama entidades e pode rodar as suas regras de negócio para te retornar com um resultado.
+
+Como o resultado também é um DTO, você pode tê-lo num padrão de input, para os dados que entram no seu sistema; e ao mesmo tempo você pode ter um DTO de output, de dados que retornam a informação para a camada superior da sua aplicação, que podemos enviar para o cliente final.
+
+De toda forma, o seu DTO pode ser um objeto totalmente anêmico – que é um método de modelar sistemas pela separação de camadas.
+
+##### Validações
+
+Existem muitas vertentes que trabalham com validações do DTO. Veja, por exemplo: Se você vai integrar dados externos a um banco de dados que contém erros, independente do que seja, você pode adicionar um validador mais simples, que não necessariamente vai validar as regras de negócio; mas ele pode validar, por exemplo, os formatos de entrada.
+
+Então ao invés de você receber os dados, enviá-los para as camadas inferiores do sistema e passá-los adiante, o seu DTO pode fazer uma validação mais simples; e se já houver algo de errado, ele retorna o resultado de erro sem o risco de comprometer as informações.
+
+#### Repository
+
+> Padrão que tem como objetivo realizar a persistência de aggregates. O que são aggregates? São clusters de objetos de domínio, como entities e value objects.
+
+O repository não é um padrão que persiste em qualquer coisa. Ele é um padrão que visa realizar a persistência de aggregates, separando essa responsabilidade do domínio. Não só do domínio, essa responsabilidade da aplicação. Você não tem essa responsabilidade dentro da aplicação.
+
+#### Adapter
+
+> Converte a interface de uma classe em outra esperada pelo cliente, permitindo que classes incompatíveis trabalhem juntas.
+
+#### Strategy
+
+> Padrão que permite a definição de famílias de algoritmos, separados por classe, fazendo com que eles sejam intercambeáveis.
+
+#### Presenter
+
+#### Decorator
+
+#### Controller
+
+#### Composite Root
+
+#### Mediator
+
+### Patterns of Enterprise Application Architecture
+
+
