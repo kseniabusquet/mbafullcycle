@@ -97,12 +97,24 @@
     - [Repository](#repository)
     - [Adapter](#adapter)
     - [Strategy](#strategy)
+    - [Dynamic Factory](#dynamic-factory)
     - [Presenter](#presenter)
     - [Decorator](#decorator)
-    - [Controller](#controller)
-    - [Composite Root](#composite-root)
+    - [Controller e Composite Root](#controller-e-composite-root)
     - [Mediator](#mediator)
   - [Patterns of Enterprise Application Architecture](#patterns-of-enterprise-application-architecture)
+    - [Categorização](#categorização)
+    - [Layering](#layering)
+    - [Layer vs Tier](#layer-vs-tier)
+    - [3 Layers Architecture](#3-layers-architecture)
+    - [Regra de ouro](#regra-de-ouro)
+    - [Domain Logic](#domain-logic)
+    - [Table Module](#table-module)
+    - [Comparativo Transaction Script vs Domain Model vs Table Module](#comparativo-transaction-script-vs-domain-model-vs-table-module)
+    - [Service Layer](#service-layer)
+    - [Service Layer vs Transaction Script](#service-layer-vs-transaction-script)
+    - [Gateway](#gateway)
+    - [Gateway - 2 Formas](#gateway---2-formas)
 
 
 ## Módulo 1 - Fundamentos de Arquitetura de Solução
@@ -1190,22 +1202,196 @@ O repository não é um padrão que persiste em qualquer coisa. Ele é um padrã
 
 #### Adapter
 
+![Adapter](img/adapter.png)
+
 > Converte a interface de uma classe em outra esperada pelo cliente, permitindo que classes incompatíveis trabalhem juntas.
 
 #### Strategy
 
+![Strategy](img/strategy.png)
+
 > Padrão que permite a definição de famílias de algoritmos, separados por classe, fazendo com que eles sejam intercambeáveis.
 
+#### Dynamic Factory
+
+> Criar uma instância com base em uma string.
+>
 #### Presenter
+
+> Formatar e adequar um determinado conjunto de dados às necessidades do cliente
 
 #### Decorator
 
-#### Controller
+![Decorator](img/decorator.png)
 
-#### Composite Root
+> Permite acrescentar funcionalidades a um objeto existente (OCP)
+
+#### Controller e Composite Root
+
+![Composite Root](img/composite_root.png)
+
+**Controller** conecta o driver com a aplicação, repassando os dados de entrada e retorno a saída de acordo com o drive.
+
+**Composite Root** é o entrypoint da aplicação, onde são criadas as instâncias utilizadas pelos componentes.
 
 #### Mediator
 
+![Mediator](img/mediator.png)
+
+Cria um mecanismo de notificação para reduzir os acoplamentos.
+
 ### Patterns of Enterprise Application Architecture
 
+#### Categorização
 
+- Domain Logic
+- Data Source Architecture Patterns
+- Object-Relational Behavioral
+- OO Structural Patterns
+- OO Metadata Mapping Patterns
+- Web Presentation
+- Distribution Patterns
+- Offline Concurrency Patterns
+- Session State Patterns
+- Base Patterns
+
+#### Layering
+
+> Separação de camadas, e no final do dia ***separação de responsabilidades***.  Uma forma de abstrair uma parte do sistema em relação a outra parte do sistema.
+
+Quanto maior a abstração, maior a complexidade! Mas também, conforme mais o acoplamento e menos a abstração, também maior a complexidade.
+
+#### Layer vs Tier
+
+![Layer](img/layer.png)
+
+Toda vez que a gente está falando em separação de camadas ou layers, a gente está querendo dizer que é uma **separação lógica** = como as coisas interagem.
+
+![Tier](img/tier.png)
+
+Tier é a **separação física** = onde essas coisas vão interagir.
+
+#### 3 Layers Architecture
+
+- Presentation (não possui lógica)
+  - Display Information
+  - CLI
+  - HTTP Requests
+- Domain
+  - Coração da aplicação
+  - Regras de negócio
+- Data Source
+  - Banco de dados
+  - Mensageria
+
+#### Regra de ouro
+
+Domínio e Data Source nunca podem depender da apresentação!
+
+#### Domain Logic
+
+- Transaction Script
+  - Regras de negócio em torno de transações
+  - Segue formato mais “procedural"
+  - Simples e direto
+  - Ex: ProcessarPedido
+  - Verifica Estoque
+  - Aplica Promoções
+  - Fidelidade
+  - Cria Pedido no Banco
+  - Etc
+
+> Vantagens:
+>- Orientado a transações
+>- Totalmente direto ao ponto
+>- Adequado para requisitos simples
+
+> Desvantagens
+> - Alta complexidade quando o sistema cresce
+> - Trabalha normalmente de forma síncrona
+
+- Domain Model
+  - Domínio de uma aplicação em “objetos de domínio”
+  - Encapsula a Lógica de Negócios
+  - Regras de Negócio em primeiro lugar
+  - Validações
+
+> Vantagens
+> - Clareza e Expressividade
+> - Flexibilidade
+> - Foco na evolução
+> - Alta Testabilidade
+
+> Desvantagens
+> - Complexidade Inicial
+> - Curva de Aprendizado
+> - “Escalabilidade" e “Performance"
+> - Fácil se perder com Overengineering
+
+#### Table Module
+
+- Organização por tabelas do banco de dados
+- Regras de negócio segregadas por tabela
+- Alta coesão
+- Acoplamento forte com o banco de dados
+
+> Vantagens
+> - Simples
+> - Fácil mapeamento
+> - Simples manutenção em diversas situações
+> - CRUD
+
+> Desvantagens
+> - Duplicação de código
+> - Baixa reutilização
+> - Baixa regra de domínio
+
+#### Comparativo Transaction Script vs Domain Model vs Table Module
+
+![Comparativo](img/comparativo.png)
+
+#### Service Layer
+
+- Camada intermediária entre a camada de apresentação e o acesso a dados
+- Expõe funcionalidades de alto nível para os “clients"
+- Encapsula a lógica de negócios
+- Orquestra a ordem das operações
+- Tem acesso a camada de dados
+- Gerencia transações
+
+> Vantagens
+> - Separação de responsabilidades
+> - Reutilização
+> - Melhor estabilidade do que transaction scripts
+> - Flexibilidade para implementar
+
+> Desvantagens
+> - Complexidade ao longo do tempo
+> - Maior acoplamento
+> - Complexidade no trabalho em equipes
+> - Tende a trabalhar com modelos de domínio anêmicos
+
+#### Service Layer vs Transaction Script
+
+- Apesar de terem idéias semelhantes, possuem estruturas diferentes
+- Transaction Scripts normalmente trabalham no formato de funções ou
+conjunto de funções específicas para cada operação. O que tende a gerar
+muita duplicação de código
+- Service Layer tende a ser mais flexível e reutilizável
+
+#### Gateway
+
+> Objeto que encapsula e acessa sistemas ou recursos externos.
+
+![Gateway](img/gateway.png)
+
+#### Gateway - 2 Formas
+
+> Uma instância para cada linha retornada por uma consulta **(Row Data Gateway)**
+
+![Row Data Gateway](img/row_data_gateway.png)
+
+> Estrutura genérica de tabelas e linhas que imitam a natureza tabular de um banco
+**(Record Set)**. Uma classe por tabela. **(In Memory Table)** -> **Table Data Gateway**
+
+![Table Data Gateway](img/table_data_gateway.png)

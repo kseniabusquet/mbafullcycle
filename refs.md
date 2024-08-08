@@ -21,3 +21,5 @@
 [Envoy Proxy](https://www.envoyproxy.io/)
 
 [Kong API Gateway](https://docs.konghq.com/)
+
+[Refactoring and Design Patterns](https://refactoring.guru/)
