@@ -115,6 +115,54 @@
     - [Service Layer vs Transaction Script](#service-layer-vs-transaction-script)
     - [Gateway](#gateway)
     - [Gateway - 2 Formas](#gateway---2-formas)
+    - [Active Record](#active-record)
+    - [Data Mapper](#data-mapper)
+    - [Unit of Work](#unit-of-work)
+    - [Identity Map](#identity-map)
+    - [Lazy Load](#lazy-load)
+    - [Repository](#repository-1)
+  - [Web Presentation Patterns](#web-presentation-patterns)
+    - [MVC](#mvc)
+  - [Distribution Patterns](#distribution-patterns)
+    - [Lock Otimista (Optimistic Offline Lock)](#lock-otimista-optimistic-offline-lock)
+    - [Lock Pessimista (Pesiimistic Offline Lock)](#lock-pessimista-pesiimistic-offline-lock)
+  - [Considerações finais](#considerações-finais)
+- [Módulo 5 - DDD (Domain Driven Design)](#módulo-5---ddd-domain-driven-design)
+  - [Definition](#definition)
+  - [Why use DDD?](#why-use-ddd)
+  - [Strategic Design](#strategic-design)
+    - [Team Language Contexts](#team-language-contexts)
+    - [Language Contexts](#language-contexts)
+    - [In the Enterprise](#in-the-enterprise)
+    - [Domains and Subdomains](#domains-and-subdomains)
+    - [Kinds of Subdomains](#kinds-of-subdomains)
+    - [Context Mapping](#context-mapping)
+      - [Partnership](#partnership)
+      - [Shared Kernel](#shared-kernel)
+      - [Customer - Supplier](#customer---supplier)
+      - [Conformist](#conformist)
+      - [Anticorruption Layer](#anticorruption-layer)
+      - [Open-Host Service](#open-host-service)
+      - [Published Language](#published-language)
+  - [Tactical Design](#tactical-design)
+    - [Technical Components](#technical-components)
+      - [Modules](#modules)
+      - [Aggregates, Values, Events](#aggregates-values-events)
+      - [Model Behavior](#model-behavior)
+      - [Domain Services](#domain-services)
+      - [Busines Logic](#busines-logic)
+      - [Command to Event](#command-to-event)
+      - [Time to Event](#time-to-event)
+      - [Ports and Adapters Architecture](#ports-and-adapters-architecture)
+      - [Event Sourcing](#event-sourcing)
+      - [CQRS](#cqrs)
+      - [Monolith](#monolith)
+      - [Monolith + Microservices](#monolith--microservices)
+      - [Cloud Integration](#cloud-integration)
+      - [Choreography](#choreography)
+      - [Processes and Policies](#processes-and-policies)
+      - [Orchestration](#orchestration)
+  - [Summary](#summary)
 
 
 ## Módulo 1 - Fundamentos de Arquitetura de Solução
@@ -1395,3 +1443,400 @@ muita duplicação de código
 **(Record Set)**. Uma classe por tabela. **(In Memory Table)** -> **Table Data Gateway**
 
 ![Table Data Gateway](img/table_data_gateway.png)
+
+#### Active Record
+
+> Um objeto que encapsula uma linha, tabela ou view e ainda adiciona lógica de
+domínio em seus dados.
+
+![Active Record](img/active_record.png)
+
+- Carrega dados e comportamento
+- Lógica de domínio tende a "vazar" para o comportamento do banco de dados
+- Extremamente simples de usar
+- Rails
+- Laravel
+- Django
+- Recomendação pessoal:
+- Separe o modelo de domínio do modelo do active record
+- Enquanto Data Table ou Row Table apenas é acoplado no banco, o Active Record tende também a ficar acoplado ao domínio.
+
+**Quando não usar**:
+
+- Domínios complexos
+- Active Record precisa de um match exato com as tabelas do banco
+- Conforme a complexidade do domínio aumenta, os objetos de domínio
+deixam de ser 1:1 com o banco
+
+#### Data Mapper
+
+> Uma camada de mapeamento move dados entre os objetos e banco de dados enquanto os mantém independente um do outro.
+
+![Data Mapper](img/data_mapper.png)
+
+- Ideal para domínios complexos
+- Domínio não fica refém da estrutura do banco de dados
+- Separe as entidades (objetos de mapeamento) do modelo de domínio
+  - Utilizar as mesmas entidades fará com que seu domínio fique anêmico
+
+- Domínios simples: Active Record
+- Domínios complexos: Data Mapper
+- Não há verdade absoluta
+
+**Atomicidade**
+
+- Como trabalhar com diversos objetos?
+- Como garantir a persistência?
+- Como realizar compensação?
+
+#### Unit of Work
+
+> Mantém uma lista de objetos afetados por uma transação de negócios e
+coordena as mudanças e os problemas de concorrência.
+
+![Unit of Work](img/unit_of_work.png)
+
+- **Register New**: Um novo objeto que foi criado durante a execução (insert)
+- **Register Dirty**: Objeto já existente que foi carregado e modificado (update)
+- **Register Clean**: Objeto recuperado e não modificado
+- **Register Deleted**: Objeto recuperado e marcado para remoção
+- **Commit**: Persiste a transação no banco de dados
+
+#### Identity Map
+
+> Garante que cada objeto é carregado apenas uma vez e o mantém em um
+mapa de controle. Quando há busca pelo objeto, primeiramente ela é
+realizada no mapa.
+
+- Estrutura de dados
+- Carregamento das entidades em memória
+- Garante o carregamento apenas uma vez
+- Melhora performance e remove inconsistências
+- Mantém o controle dos objetos que foram criados, modificados ou marcados
+para remoção para ser utilizado em conjunto com o UoW
+
+#### Lazy Load
+
+> Um objeto que não possui todos os dados que você talvez precise, mas sabe onde buscá-lo.
+
+![Lazy Load](img/lazy_load.png)
+
+- Carrega os objetos somente quando necessário
+- No carregamento inicial ao invés de ter os dados reais, esses dados são
+substituídos por proxies (apenas representações do objeto real, sem dados)
+- Quando os dados relacionados são acessados o proxy carrega os dados do
+banco
+- Cuidado enorme com N+1
+
+#### Repository
+
+> Mediação entre a camada de domínio e a camada de dados usando uma
+interface para acessar os objetos de domínio.
+
+- Mediação entre os objetos de domínio e o data mapper
+- Recebe objetos de domínio atendendo uma especificação
+- Retorna objetos de domínio
+- Normalmente faz diferentes combinações de especificações gerando o SQL
+desejado para atender um critério
+- “Promove" o padrão “specification"
+
+![Repository 1](img/repository_1.png)
+
+![Repository 2](img/repository_2.png)
+
+![Repository 3](img/repository_3.png)
+
+![Repository 4](img/repository_4.png)
+
+![Repository 5](img/repository_5.png)
+
+### Web Presentation Patterns
+
+#### MVC
+
+- M = Model; V = View; C = Controller;
+- Criado na década de 70
+- Para a Smalltalk
+- Frameworks com UI
+- Model é um objeto que representa alguma informação do domínio
+- Possui todos os dados que serão utilizados pela UI
+- View representa a apresentação dos dados do Model na UI
+- Controller recebe a input do usuário, manipula o model e faz com que a view
+seja atualizada
+- UI é a combinação da View e do Controller
+
+![MVC](img/mvc.png)
+
+- A View depende do Model, mas o Model não depende da View
+- Idealmente se você possui diversas “janelas" em sua UI e o Model é
+atualizado, espera-se que os dados das “janelas" sejam atualizados
+automaticamente;
+- Para essa atualização, recomenda-se utilizar patterns como o Observer para a
+propagação de eventos ou mesmo um listener; (Reatividade)
+
+### Distribution Patterns
+
+#### Lock Otimista (Optimistic Offline Lock)
+
+> Detecta e previne conflitos entre transações concorrentes realizando o roll back da transação.
+
+![Optimistic Offline Lock](img/optimistic_offline_lock.png)
+
+![Optimistic Offline Lock 2](img/optimistic_offline_lock_2.png)
+
+#### Lock Pessimista (Pesiimistic Offline Lock)
+
+> Evita conflito entre transações concorrentes permitindo apenas uma transação de cada vez.
+
+![Pessimistic Offline Lock](img/pessimistic_offline_lock.png)
+
+![Pessimistic Offline Lock 2](img/pessimistic_offline_lock_2.png)
+
+### Considerações finais
+
+Improtante lembrar que gateways é o acesso da porta para fora.
+
+Importante não ficar escravo somente de uma forma, somente de um mecanismo de gateway.
+
+**Exemplos**:
+- Quando tem muita CRUD -> Table / Row Gateway
+- Quando vai mapear o domínio complexo -> Data Mapper
+
+## Módulo 5 - DDD (Domain Driven Design)
+
+### Definition
+
+- A way of thinking about software model design
+- A knowledge-crunching approach to solving complex business problems with software
+- Contextual, language-centric, strategic and tactical modelling tools
+
+Domain according to DDD is the **sphere of knowledge**.
+
+### Why use DDD?
+
+Conway's Law: ***"Organizations which design systems (in the broad sense used here) are constrained to produce designs which are copies of the communication structures of these organizations."***
+
+![Organizations Communication Structure](img/communication_structure.png)
+
+Communication: Poor Structure
+![Poor Structure](img/poor_structure.png)
+
+![Poor Structure 1](img/poor_structure_1.png)
+
+Communication: Minute Structure
+![Minute Structure](img/minute_structure.png)
+
+Communication: Good Structure
+![Good Structure](img/good_structure.png)
+
+![Good Structure 1](img/good_structure_1.png)
+
+Not only communication, it is conversation between all of the individuals of the team.
+
+![Team Structure](img/team_structure.png)
+
+Right Side: Crossfunctional team
+
+### Strategic Design
+
+**Bounded Context - a place where a model and all of the model elements have relevance.**
+
+#### Team Language Contexts
+
+![Ubiquitous Language](img/ubiquitous_language.png)
+
+![Ubiquitous Language 2](img/ubiquitous_language_2.png)
+
+#### Language Contexts
+
+![Language Contexts](img/language_contexts.png)
+
+These 3 bounded contexts work togethe but are loosely coupled!
+
+In this case, each one of the teams can work independently
+
+#### In the Enterprise
+
+![Enterprise Scope](img/enterprise_scope.png)
+
+#### Domains and Subdomains
+
+![Domains and Subdomains](img/domains_and_subdomains.png)
+
+#### Kinds of Subdomains
+
+![Subdomains](img/subdomains.png)
+
+**Core Domain**
+> tends to be complex; little knowledge
+
+**Supporting Subdomain**
+> Software that does not exist previous to this and is meant to support the core domain
+> Less investments comparing to the core domain
+
+**Generic Subdomain**
+> Software that you can purchase or download
+
+![Example Subdomains](img/example_subdomains.png)
+
+#### Context Mapping
+
+![Context Mapping](img/context_mapping.png)
+
+The line between the context does not necessarily represent tight coupling, but:
+
+- Team Relationship
+- Intergration Style
+
+##### Partnership
+
+![Partnership](img/partnership.png)
+
+- a lot of communication
+- a lot of planning
+- scheduliing
+- meetings together
+
+It is expected for each team to support the other because they will succeed or fail **together**.
+
+##### Shared Kernel
+
+![Shared Kernel](img/shared_kernel.png)
+
+At least 2 bounded contexts share a common model between them. They will each use the model that they share as if it was a part of their own model.
+
+A shared kernel is meant to be small!
+
+**Problems**:
+- One team already has some kind of solution or shares the same motivation
+- As 2 teams you can agree that the model that has to be shared should have a single definition and that you don't need separate definitions for each element of the model
+
+##### Customer - Supplier
+
+![Customer-Supplier](img/customer-supplier.png)
+
+One team functions as a customer and another one as a supplier.
+
+The influence flows from upstream to downstream. In general, downstream will have to accept what upstream has or wait for some timeframe in order to get more.
+
+##### Conformist
+
+![Conformist](img/conformist.png)
+
+In this case the customer is going to conform to the upstream model, it will consume the upstreamm model as it exists.
+
+Tipically where you will see the conformity is **complex third party software**.
+
+##### Anticorruption Layer
+
+![Anticorruption Layer](img/anticorriuption_layer.png)
+
+The opposite to conformist.
+
+AcL translates dirty concepts from the ball of mud into clean ones.
+
+##### Open-Host Service
+
+![Open-Host Service](img/open_host_service.png)
+
+Provides an API.
+
+##### Published Language
+
+![Published Language](img/published_language.png)
+
+Bounded Contexts can publish tot he outside workd a kind of modelling language that they use to exchange data.
+
+### Tactical Design
+
+![Tactical Design](img/tactical_design.png)
+
+#### Technical Components
+
+##### Modules
+
+![Modules](img/modules.png)
+
+> A way of organizing by clear naming
+
+##### Aggregates, Values, Events
+
+![Aggregates, Values, Events](img/aggregates_values_events.png)
+
+##### Model Behavior
+
+![Model Behavior](img/model_behavior.png)
+
+##### Domain Services
+
+![Domain Services](img/domain_services.png)
+
+Stateless Operations
+
+##### Busines Logic
+
+![Business Logic](img/business_logic.png)
+
+##### Command to Event
+
+![Command to Event](img/command_to_event.png)
+
+##### Time to Event
+
+![Time to Event](img/time_to_event.png)
+
+##### Ports and Adapters Architecture
+
+![Architecture, ports and adapters](img/architecture_ports_adapters.png)
+
+##### Event Sourcing
+
+![Event Sourcing](img/event_sourcing.png)
+
+To recreate or reconstitute the policy that existed vefore, we replay the events in the exact same order that they occured.
+
+A snapshot for everything that happened.
+
+##### CQRS
+
+![CQRS](img/cqrs_2.png)
+
+User submits commands and the results of the commands will be projected into a query model.
+
+##### Monolith
+
+![Monolith](img/monolith.png)
+
+The Message Bus helps to loosen the coupling.
+
+##### Monolith + Microservices
+
+![Monolith + Microservices](img/monolith_microservices.png)
+
+##### Cloud Integration
+
+![Cloud Integration](img/cloud_integration.png)
+
+##### Choreography
+
+![Choreography](img/choreography.png)
+
+Way of managing processes so that different contextes become responsible for interpreting through domain events of what has occured previously and interpreting that to something that needs to happen next within their context.
+
+##### Processes and Policies
+
+![Processes and Policies](img/processes_and_policies.png)
+
+##### Orchestration
+
+![Orchestration](image.png)
+
+Orchestrator is a process manager. Application Premioum Process does all the translation for the bounded contexts.
+
+Same process as the choreography, but with the benefit of the orchestrator taking care of some part of the work.
+
+### Summary
+
+![Summary](img/summary.png)
+
+
